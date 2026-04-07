@@ -169,8 +169,9 @@ a {
     background: var(--bg-light);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-full);
-    padding: 8px 16px;
+    padding: 10px 20px;
     transition: var(--transition);
+    margin: 0 16px;
 }
 .search-bar:focus-within {
     border-color: var(--primary);
@@ -178,8 +179,7 @@ a {
 }
 .search-bar i {
     color: var(--text-muted);
-    font-size: 1.2rem;
-    margin-right: 8px;
+    font-size: 1.3rem;
 }
 .search-bar input {
     border: none;
@@ -189,6 +189,7 @@ a {
     font-family: inherit;
     font-size: 0.95rem;
     color: var(--text-main);
+    padding-left: 12px;
 }
 
 .nav-links {

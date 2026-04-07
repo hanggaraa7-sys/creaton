@@ -205,17 +205,33 @@ class Create2EarnApp {
                 this.renderCategoryView(cat);
             } else if (hash === '#upload') {
                 this.renderUploadFlow();
+            } else if (hash.startsWith('#search-')) {
+                const query = decodeURIComponent(hash.substring(8)).toLowerCase();
+                const results = this.allProducts.filter(p => 
+                    p.title.toLowerCase().includes(query) || 
+                    p.category.toLowerCase().includes(query) ||
+                    (p.creator && p.creator.name.toLowerCase().includes(query))
+                );
+                this.appRoot.innerHTML = window.Components.SearchView(results, decodeURIComponent(hash.substring(8)));
+                this.appRoot.className = 'view active';
+                window.scrollTo(0, 0);
             } else if (hash === '#search') {
-                this.appRoot.innerHTML = '<div class="container section"><h2 class="section-title">Hasil Pencarian (Segera Hadir)</h2></div>';
+                const searchInput = document.getElementById('global-search');
+                if (searchInput) searchInput.focus();
             }
         });
 
-        // Search bar listener mockup
+        // Search bar listener implementation
         const searchInput = document.getElementById('global-search');
         if(searchInput) {
             searchInput.addEventListener('keypress', (e) => {
                 if(e.key === 'Enter') {
-                    alert('Searching for: ' + e.target.value);
+                    const query = e.target.value.trim();
+                    if (query) {
+                        window.location.hash = '#search-' + encodeURIComponent(query);
+                    } else {
+                        window.location.hash = '#home';
+                    }
                 }
             });
         }

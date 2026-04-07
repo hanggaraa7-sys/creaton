@@ -410,6 +410,22 @@ const Components = {
         `;
     },
     
+    SearchView: (products, query) => `
+        <section class="section container" style="padding-top: 80px; min-height: 80vh;">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Hasil Pencarian: "${query}"</h2>
+                    <p class="section-subtitle">Ditemukan ${products.length} produk.</p>
+                </div>
+            </div>
+            <div class="grid-products">
+                ${products.length > 0 ? 
+                    products.map(p => window.Components.ProductCard(p)).join('') 
+                    : '<div style="color:var(--text-muted); text-align:center; width:100%; grid-column:1/-1; padding: 40px 0;"><i class=\'bx bx-search-alt\' style="font-size: 3rem; margin-bottom: 16px;"></i><br>Tidak ada produk yang sesuai dengan pencarian Anda.</div>'}
+            </div>
+        </section>
+    `,
+
     CheckoutView: (product) => `
         <section class="section container" style="padding-top: 80px; min-height: 80vh; display: flex; align-items: center; justify-content: center;">
             <div class="form-container" style="width: 100%; text-align: center; margin: 0;">
