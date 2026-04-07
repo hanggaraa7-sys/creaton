@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creaton - Monetize Your Skills</title>
+    <!-- Google Fonts: Outfit for dynamic, modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- BoxIcons for lightweight icons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Global CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="main-nav">
+        <div class="nav-container">
+            <a href="#home" class="logo">
+                <span class="logo-icon"><i class='bx bxs-zap'></i></span>
+                Creaton
+            </a>
+            
+            <div class="search-bar">
+                <i class='bx bx-search'></i>
+                <input type="text" id="global-search" placeholder="Cari template, modul, tulisan...">
+            </div>
+
+            <div class="nav-links">
+                <a href="#home" class="nav-link active">Jelajahi</a>
+                <a href="#categories" class="nav-link">Kategori</a>
+                <a href="#upload" class="btn btn-primary-outline"><i class='bx bx-upload'></i> Unggah Karya</a>
+                <div class="user-profile-nav" id="current-user-nav">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            
+            <button class="menu-toggle" id="mobile-menu-btn">
+                <i class='bx bx-menu'></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="app-root">
+        <!-- Views will be injected here by app.js -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>Creaton</h3>
+                <p>Memberdayakan mahasiswa untuk menghasilkan pendapatan dari keahlian mereka. Platform UGC #1 untuk kreativitas mahasiswa.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Untuk Kreator</h4>
+                <a href="#upload">Panduan Berjualan</a>
+                <a href="#levels">Level Kreator</a>
+                <a href="#dashboard">Dasbor</a>
+            </div>
+            <div class="footer-links">
+                <h4>Dukungan</h4>
+                <a href="#">Pusat Bantuan</a>
+                <a href="#">Keamanan & Kepercayaan</a>
+                <a href="#">Syarat & Ketentuan</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Creaton. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/data.js" defer></script>
+    <script src="js/components.js" defer></script>
+    <script src="js/app.js" defer></script>
+</body>
+</html>
