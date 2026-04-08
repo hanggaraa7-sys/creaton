@@ -161,7 +161,8 @@ const Components = {
 
                 <div class="form-group">
                     <label>Bank Tujuan</label>
-                    <select class="form-control">
+                    <select class="form-control" id="upgrade-bank">
+                        <option value="">-- Pilih Bank --</option>
                         <option>BCA</option>
                         <option>Bank Mandiri</option>
                         <option>BNI</option>
@@ -172,12 +173,12 @@ const Components = {
 
                 <div class="form-group">
                     <label>Nomor Rekening / E-Wallet</label>
-                    <input type="text" class="form-control" placeholder="Contoh: 1234567890">
+                    <input type="text" id="upgrade-norek" class="form-control" placeholder="Contoh: 1234567890">
                 </div>
 
                 <div class="form-group">
                     <label>Atas Nama (Sesuai Buku Tabungan)</label>
-                    <input type="text" class="form-control" placeholder="Nama Lengkap">
+                    <input type="text" id="upgrade-nama" class="form-control" placeholder="Nama Lengkap">
                 </div>
 
                 <button class="btn btn-primary" style="width:100%; padding:14px; margin-top:16px; font-weight:700;" onclick="window.app.upgradeToCreator()">Selesai & Buka Toko</button>

@@ -11,6 +11,30 @@ class Create2EarnApp {
         this.init();
     }
 
+    setupMobileMenu() {
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+        
+        if (menuBtn && navLinks) {
+            menuBtn.addEventListener('click', () => {
+                navLinks.classList.toggle('mobile-active');
+                if(navLinks.classList.contains('mobile-active')) {
+                    menuBtn.innerHTML = "<i class='bx bx-x'></i>"; // close icon
+                } else {
+                    menuBtn.innerHTML = "<i class='bx bx-menu'></i>"; // menu icon
+                }
+            });
+            
+            // Auto close menu when a link is clicked
+            navLinks.addEventListener('click', (e) => {
+                if(e.target.tagName === 'A' || e.target.closest('a') || e.target.closest('.user-snippet')) {
+                    navLinks.classList.remove('mobile-active');
+                    menuBtn.innerHTML = "<i class='bx bx-menu'></i>";
+                }
+            });
+        }
+    }
+
     completePurchase(productId) {
         const product = this.allProducts.find(p => p.id === productId);
         if (product && !this.purchasedProducts.find(p => p.id === productId)) {
@@ -23,6 +47,7 @@ class Create2EarnApp {
     init() {
         this.setupNavigation();
         this.setupEventListeners();
+        this.setupMobileMenu();
         
         if (!this.isLoggedIn) {
             this.renderAuth();
@@ -256,6 +281,17 @@ class Create2EarnApp {
     }
 
     upgradeToCreator() {
+        const bank = document.getElementById('upgrade-bank');
+        const norek = document.getElementById('upgrade-norek');
+        const nama = document.getElementById('upgrade-nama');
+
+        if (bank && norek && nama) {
+            if (!bank.value.trim() || !norek.value.trim() || !nama.value.trim()) {
+                alert('⚠️ Peringatan: Harap lengkapi semua data keuangan (Bank, Nomor, dan Nama Pemilik) untuk menjamin kelancaran transfer Anda nantinya.');
+                return;
+            }
+        }
+
         this.userRole = 'creator';
         this.setupNavigation();
         alert('🎉 Yay! Akunmu telah ditingkatkan. Selamat datang di Dasbor Kreator!');
@@ -263,32 +299,46 @@ class Create2EarnApp {
     }
 
     uploadProduct() {
-        const title = document.getElementById('upload-title')?.value || 'Produk Kreator Baru';
-        const category = document.getElementById('upload-category')?.value || 'Desain';
+        const title = document.getElementById('upload-title')?.value;
         const priceStr = document.getElementById('upload-price')?.value;
-        const price = priceStr ? parseInt(priceStr) : 50000;
-        const description = document.getElementById('upload-desc')?.value || 'Produk ini tidak memiliki deskripsi spesifik.';
+        const price = priceStr ? parseInt(priceStr) : 0;
+        const descElem = document.getElementById('upload-desc');
+        const description = descElem ? descElem.value : '';
+        const categoryE = document.getElementById('upload-category');
+        const category = categoryE ? categoryE.value : 'Desain Grafis';
         
         const currentUser = this.currentUser || window.mockData.users[1];
 
         const customImage = window.uploadedImageBase64;
-        if (window.uploadedImageBase64) {
-            window.uploadedImageBase64 = null; // reset for next upload
+        const zipFile = window.uploadedZipFile;
+
+        // Empty field validation
+        if (!title || !title.trim()) { alert("⚠️ Gagal: Harap isi Judul Karya Anda!"); return; }
+        if (!price || price < 1000) { alert("⚠️ Gagal: Harap tetapkan Harga Jual (min: Rp 1.000)!"); return; }
+        if (!description || !description.trim()) { alert("⚠️ Gagal: Harap jelaskan Deskripsi karya agar pembeli paham manfaatnya!"); return; }
+        if (!zipFile) { alert("⚠️ Gagal: File Projek Utama (.zip) belum diunggah!"); return; }
+        if (!customImage) { alert("⚠️ Gagal: Gambar Thumbnail display produk belum diisi!"); return; }
+
+        if (customImage) {
+             window.mockData.dashboard.overview.views += 1500;
+             window.mockData.dashboard.overview.sales += 42;
+             window.mockData.dashboard.overview.totalPendapatan += (price * 42); // mock formula
         }
 
         const newProduct = {
-            id: 'p_new_' + Math.floor(Math.random() * 10000),
-            title: title,
+            id: 'p' + Math.floor(Math.random() * 10000),
+            title: title.trim(),
             price: price,
-            image: customImage ? customImage : (category === 'Akademik' ? 'images/study_module.png' : 'images/design_template.png'),
+            image: customImage,
             rating: 0,
             reviews: 0,
             creatorId: currentUser.id,
+            category: category,
             creator: {
                 name: currentUser.name,
                 avatar: currentUser.avatar
             },
-            description: description,
+            description: description.trim(),
             zipDataUri: window.uploadedZipFile ? window.uploadedZipFile.dataUri : null,
             zipFileName: window.uploadedZipFile ? window.uploadedZipFile.name : null
         };
