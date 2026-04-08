@@ -645,6 +645,17 @@ a {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px var(--primary-light);
 }
+
+.two-col-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+@media (max-width: 600px) {
+    .two-col-grid {
+        grid-template-columns: 1fr;
+    }
+}
 .file-drop-zone {
     border: 2px dashed var(--border-color);
     padding: 40px;

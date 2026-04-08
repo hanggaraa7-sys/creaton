@@ -96,9 +96,19 @@ class Create2EarnApp {
                             const reader = new FileReader();
                             reader.onload = (event) => {
                                 window.uploadedImageBase64 = event.target.result;
-                                document.getElementById('drop-zone-display').innerHTML = `<img src="${event.target.result}" style="max-height:150px; max-width:100%; border-radius:8px; object-fit:contain; margin-bottom:12px;"> <br> <span style="font-size:0.85rem; color:var(--text-main);">Gambar berhasil dipilih</span>`;
+                                document.getElementById('drop-zone-display').innerHTML = `<img src="${event.target.result}" style="max-height:100px; max-width:100%; border-radius:8px; object-fit:contain; margin-bottom:12px;"> <br> <span style="font-size:0.85rem; color:var(--text-main);">Gambar dipilih</span>`;
                             };
                             reader.readAsDataURL(file);
+                        }
+                    });
+                }
+
+                const uploadFile = document.getElementById('upload-file');
+                if (uploadFile) {
+                    uploadFile.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            document.getElementById('drop-zone-file').innerHTML = `<i class='bx bxs-check-circle' style="color:#22C55E; font-size: 3rem; margin-bottom:8px;"></i> <br> <span style="font-size:0.85rem; color:var(--text-main); font-weight:600;">${file.name}</span><br><span style="font-size:0.75rem; color:var(--text-muted)">Siap diunggah</span>`;
                         }
                     });
                 }

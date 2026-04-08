@@ -178,14 +178,26 @@ const Components = {
                         <textarea id="upload-desc" class="form-control" rows="4" placeholder="Jelaskan apa saja yang didapatkan pembeli dari produk ini..."></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label>Thumbnail / Preview Karya</label>
-                        <div class="file-drop-zone" onclick="document.getElementById('upload-image').click()" id="drop-zone-display">
-                            <i class='bx bx-image-add'></i>
-                            <h4>Klik untuk Pilih Foto</h4>
-                            <p style="font-size: 0.85rem; margin-top: 8px;">Mendukung .JPG, .PNG maksimal 2MB</p>
+                    <div class="two-col-grid">
+                        <div class="form-group">
+                            <label>File Produk Utama (ZIP)</label>
+                            <div class="file-drop-zone" onclick="document.getElementById('upload-file').click()" id="drop-zone-file" style="padding: 30px;">
+                                <i class='bx bxs-file-archive'></i>
+                                <h4 style="font-size: 0.95rem;">Pilih File Karya</h4>
+                                <p style="font-size: 0.75rem; margin-top: 8px;">Maksimal 50MB</p>
+                            </div>
+                            <input type="file" id="upload-file" accept=".zip,.rar,.rar4,.tar" style="display:none;">
                         </div>
-                        <input type="file" id="upload-image" accept="image/*" style="display:none;">
+
+                        <div class="form-group">
+                            <label>Thumbnail / Preview</label>
+                            <div class="file-drop-zone" onclick="document.getElementById('upload-image').click()" id="drop-zone-display" style="padding: 30px;">
+                                <i class='bx bx-image-add'></i>
+                                <h4 style="font-size: 0.95rem;">Foto Produk</h4>
+                                <p style="font-size: 0.75rem; margin-top: 8px;">JPG/PNG mak. 2MB</p>
+                            </div>
+                            <input type="file" id="upload-image" accept="image/*" style="display:none;">
+                        </div>
                     </div>
 
                     <button class="btn btn-primary" style="width:100%; padding: 14px;" onclick="window.app.uploadProduct()">Terbitkan Produk</button>
