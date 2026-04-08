@@ -125,23 +125,63 @@ const Components = {
     `,
 
     AuthView: () => `
-        <section class="section container">
-            <div class="form-container">
-                <h2 class="form-title">Jadilah Kreator</h2>
-                <p class="form-subtitle">Daftar atau masuk untuk mulai menghasilkan pendapatan dari karya digitalmu.</p>
+        <section class="section container" style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+            <div class="form-container" style="width: 100%; border:none; box-shadow:var(--shadow-md);">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <div class="logo-icon" style="margin: 0 auto 12px; transform: scale(1.5);"><i class='bx bxs-zap'></i></div>
+                    <h2 class="form-title">Masuk / Daftar</h2>
+                    <p class="form-subtitle" style="margin-bottom:16px;">Platform marketplace karya digital mahasiswa terkemuka.</p>
+                </div>
                 <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" class="form-control" placeholder="mahasiswa@kampus.ac.id">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="auth-name" class="form-control" placeholder="Nama Anda">
+                </div>
+                <div class="form-group">
+                    <label>Email Kampus / Pribadi</label>
+                    <input type="email" id="auth-email" class="form-control" placeholder="kamu@domain.com">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" class="form-control" placeholder="••••••••">
+                    <input type="password" id="auth-password" class="form-control" placeholder="••••••••">
                 </div>
+                <button class="btn btn-primary" style="width:100%; padding:14px; margin-top:8px; font-weight:700;" onclick="window.app.login()">Masuk ke Marketplace</button>
+            </div>
+        </section>
+    `,
+
+    CreatorUpgradeView: () => `
+        <section class="section container">
+            <div class="form-container">
+                <h2 class="form-title">Upgrade ke Kreator 🚀</h2>
+                <p class="form-subtitle">Satu langkah lagi untuk mulai menghasilkan passive income. Harap lengkapi pengaturan pembayaran Anda untuk pencairan dana.</p>
+                
+                <div style="background: var(--primary-light); padding: 16px; border-radius: 8px; margin-bottom: 24px; border: 1px solid var(--primary);">
+                    <p style="font-size: 0.85rem; color: var(--secondary); margin:0;"><strong>Penting:</strong> Sistem otomatis memotong 10% (biaya platform) dari setiap penjualan. Pendapatan bersih (90%) Anda dapat <strong>ditarik (withdraw) kapan saja</strong> dengan batas minimum saldo <strong>Rp 50.000</strong>.</p>
+                </div>
+
                 <div class="form-group">
-                    <label>Nomor Rekening Bank (Pendapatan ditarik otomatis)</label>
-                    <input type="text" class="form-control" placeholder="Contoh: 123456789 (BCA/Mandiri/BNI)">
+                    <label>Bank Tujuan</label>
+                    <select class="form-control">
+                        <option>BCA</option>
+                        <option>Bank Mandiri</option>
+                        <option>BNI</option>
+                        <option>BRI</option>
+                        <option>Gopay / OVO / Dana</option>
+                    </select>
                 </div>
-                <button class="btn btn-primary" style="width:100%; padding:14px; margin-top:8px;" onclick="window.app.login()">Masuk / Daftar</button>
+
+                <div class="form-group">
+                    <label>Nomor Rekening / E-Wallet</label>
+                    <input type="text" class="form-control" placeholder="Contoh: 1234567890">
+                </div>
+
+                <div class="form-group">
+                    <label>Atas Nama (Sesuai Buku Tabungan)</label>
+                    <input type="text" class="form-control" placeholder="Nama Lengkap">
+                </div>
+
+                <button class="btn btn-primary" style="width:100%; padding:14px; margin-top:16px; font-weight:700;" onclick="window.app.upgradeToCreator()">Selesai & Buka Toko</button>
+                <button class="btn btn-primary-outline" style="width:100%; padding:14px; margin-top:12px; border:none;" onclick="history.back()">Batal</button>
             </div>
         </section>
     `,
@@ -169,8 +209,18 @@ const Components = {
                     </div>
 
                     <div class="form-group">
-                        <label>Harga (Rp)</label>
+                        <label>Harga Jual Dasar (Rp)</label>
                         <input type="number" id="upload-price" class="form-control" placeholder="Contoh: 50000">
+                        <div id="fee-calculator" style="margin-top: 12px; padding: 12px; border-radius: 6px; background-color: var(--bg-light); border: 1px dashed var(--border-color); display: none;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted); margin-bottom:4px;">
+                                <span>Biaya Operasional Platform (10%)</span>
+                                <span id="fee-amount" style="color: #EF4444;">-Rp 0</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.95rem; font-weight:600; color:var(--secondary); border-top:1px solid var(--border-color); padding-top:6px; margin-top:4px;">
+                                <span>Estimasi Pemasukan Bersihmu</span>
+                                <span id="net-income" style="color: #22C55E;">Rp 0</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -213,7 +263,7 @@ const Components = {
                 <div class="dashboard-card-title">Ringkasan Performa</div>
                 <div class="stat-cards-grid">
                     <div class="stat-card">
-                        <div class="stat-card-label">Total Pendapatan</div>
+                        <div class="stat-card-label">Pendapatan Bersih</div>
                         <div class="stat-card-value">Rp ${data.overview.totalPendapatan.toLocaleString('id-ID')}</div>
                     </div>
                     <div class="stat-card">
@@ -251,9 +301,10 @@ const Components = {
         const earningsHtml = `
             <div class="dashboard-card" style="background: var(--secondary); color: white;">
                 <div class="dashboard-card-title" style="color: white;">Keuangan & Pemasukan</div>
-                <div style="font-size: 0.9rem; color: #94A3B8;">Total Pendapatan</div>
-                <div style="font-size: 2.2rem; font-weight: 700; margin-bottom: 8px;">Rp ${data.overview.totalPendapatan.toLocaleString('id-ID')}</div>
-                <div style="font-size: 0.8rem; color: #94A3B8; display:flex; align-items:center; gap:6px;"><i class='bx bx-check-circle' style="color:#22C55E;"></i> Dikirim langsung ke rekening bank</div>
+                <div style="font-size: 0.9rem; color: #94A3B8;">Saldo Tersedia (Netto)</div>
+                <div style="font-size: 2.2rem; font-weight: 700; margin-bottom: 12px;">Rp ${data.overview.totalPendapatan.toLocaleString('id-ID')}</div>
+                <button class="btn" style="background: white; color: var(--secondary); font-weight: 600; width: 100%; border: none; padding: 10px;" onclick="window.app.withdrawBalance(${data.overview.totalPendapatan})">Tarik Saldo (Withdraw)</button>
+                <div style="font-size: 0.75rem; color: #cbd5e1; text-align:center; margin-top:8px;">Min. Penarikan: Rp 50.000</div>
             </div>
         `;
 
@@ -438,6 +489,46 @@ const Components = {
         </section>
     `,
 
+    CustomerDashboardView: (user) => {
+        const purchasedItems = window.app.purchasedProducts || [];
+
+        return `
+            <section class="section container" style="padding-top: 80px; min-height: 80vh;">
+                <div class="section-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2 class="section-title">Koleksi Pembelian Saya</h2>
+                        <p class="section-subtitle">Halo ${user.name}, berikut adalah karya-karya yang telah kamu beli dan bisa kamu unduh.</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card" style="margin-bottom: 32px; background: linear-gradient(135deg, var(--primary-light), white); border: 1px solid var(--primary);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                        <div>
+                            <h3 style="color: var(--secondary); font-size: 1.2rem; margin-bottom: 4px;">Punya keahlian menarik?</h3>
+                            <p style="color: var(--text-muted); font-size: 0.95rem;">Ubah tugas kuliah dan template-mu menjadi sumber pemasukan pasif bulanan.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="window.location.hash='#upgrade';">Jadilah Kreator Sekarang</button>
+                    </div>
+                </div>
+
+                <div class="grid-products">
+                    ${purchasedItems.length > 0 ? purchasedItems.map(p => `
+                        <div class="product-card" style="box-shadow: none; border: 2px solid var(--border-color);">
+                            <div class="product-image-container">
+                                <img src="${p.image}" alt="${p.title}" class="product-image" loading="lazy">
+                            </div>
+                            <div class="product-content">
+                                <h3 class="product-title" style="margin-bottom:8px;">${p.title}</h3>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Kreator: <strong>${p.creator.name}</strong></p>
+                                <a href="${p.zipDataUri || 'data:application/octet-stream;charset=utf-8,File%20Karya%20Mockup'}" download="${p.zipFileName || p.title.replace(/[^a-zA-Z0-9]/g, '_') + '_Asli.zip'}" class="btn btn-primary-outline" style="width: 100%; display:inline-flex; align-items:center; justify-content:center;"><i class='bx bx-cloud-download' style="margin-right:4px;"></i> Unduh File</a>
+                            </div>
+                        </div>
+                    `).join('') : '<p style="text-align:center; color:var(--text-muted); grid-column:1/-1;">Belum ada file karya di katalog pembelanjaanmu.</p>'}
+                </div>
+            </section>
+        `;
+    },
+
     CheckoutView: (product) => `
         <section class="section container" style="padding-top: 80px; min-height: 80vh; display: flex; align-items: center; justify-content: center;">
             <div class="form-container" style="width: 100%; text-align: center; margin: 0;">
@@ -454,7 +545,7 @@ const Components = {
                     <h2 style="font-size: 2.2rem; color: var(--primary); margin: 0;">Rp ${product.price.toLocaleString('id-ID')}</h2>
                 </div>
 
-                <button class="btn btn-primary" style="width:100%; padding: 14px; margin-bottom: 12px; font-weight: 600;" onclick="alert('✅ Pembayaran berhasil divalidasi! File karya telah dikirim ke email kamu.'); location.hash='#review-${product.id}';">Saya Sudah Transfer</button>
+                <button class="btn btn-primary" style="width:100%; padding: 14px; margin-bottom: 12px; font-weight: 600;" onclick="window.app.completePurchase('${product.id}')">Saya Sudah Transfer</button>
                 <button class="btn btn-primary-outline" style="width:100%; padding: 14px;" onclick="history.back()">Batal</button>
             </div>
         </section>
@@ -465,11 +556,15 @@ const Components = {
             <div class="form-container" style="width: 100%; max-width: 500px; text-align: center; margin: 0;">
                 <i class='bx bxs-check-circle' style="font-size: 4rem; color: #22C55E; margin-bottom: 16px;"></i>
                 <h2 class="form-title">Pembayaran Berhasil!</h2>
-                <p class="form-subtitle">Kamu baru saja membeli <strong>${product.title}</strong> dari kreator <strong>${product.creator.name}</strong>.</p>
+                <p class="form-subtitle">Kamu resmi memiliki karya <strong>${product.title}</strong> dari kreator <strong>${product.creator.name}</strong>.</p>
                 
-                <hr style="border: 0; height: 1px; background: var(--border-color); margin: 24px 0;">
+                <a href="${product.zipDataUri || 'data:application/octet-stream;charset=utf-8,Aplikasi%20Prototiipe%20Data'}" download="${product.zipFileName || product.title.replace(/[^a-zA-Z0-9]/g, '_') + '_Asli.zip'}" class="btn btn-primary" style="width:100%; padding: 16px; font-size: 1.1rem; margin-bottom: 24px; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class='bx bxs-file-archive' style="font-size:1.3rem;"></i> Unduh File ZIP Sekarang
+                </a>
+
+                <hr style="border: 0; height: 1px; background: var(--border-color); margin: 0 0 24px 0;">
                 
-                <h3 style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 16px;">Beri Rating Berkualitas</h3>
+                <h3 style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 16px;">Beri Rating Kreator</h3>
                 <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 24px;">Pendapatmu akan langsung memengaruhi sistem level sang kreator!</p>
                 
                 <div class="form-group" style="text-align: left;">

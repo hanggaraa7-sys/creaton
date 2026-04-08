@@ -4,29 +4,86 @@ class Create2EarnApp {
     constructor() {
         this.appRoot = document.getElementById('app-root');
         this.allProducts = window.mockData.products;
-        this.isLoggedIn = false; // auth status mockup
+        this.isLoggedIn = false; 
+        this.userRole = 'customer'; 
+        this.currentUser = null;
+        this.purchasedProducts = [];
         this.init();
+    }
+
+    completePurchase(productId) {
+        const product = this.allProducts.find(p => p.id === productId);
+        if (product && !this.purchasedProducts.find(p => p.id === productId)) {
+            this.purchasedProducts.unshift(product);
+        }
+        alert('✅ Pembayaran dikonfirmasi! Anda dapat langsung mengunduh file.');
+        window.location.hash = '#review-' + productId;
     }
 
     init() {
         this.setupNavigation();
-        this.renderHome();
         this.setupEventListeners();
+        
+        if (!this.isLoggedIn) {
+            this.renderAuth();
+        } else {
+            this.renderHome();
+        }
+    }
+
+    renderAuth() {
+        this.appRoot.innerHTML = window.Components.AuthView();
+        this.appRoot.className = 'view active';
     }
 
     setupNavigation() {
-        // Mock User Profile Snippet in Nav
+        const nav = document.getElementById('main-nav');
+        const footer = document.querySelector('.footer');
+        
+        if (!this.isLoggedIn) {
+            if(nav) nav.style.display = 'none';
+            if(footer) footer.style.display = 'none';
+            return;
+        } else {
+            if(nav) nav.style.display = 'flex';
+            if(footer) footer.style.display = 'block';
+        }
+
+        // Dynamic navigation based on role
         const userNav = document.getElementById('current-user-nav');
-        const currentUser = window.mockData.users[1]; // Simulate logged in as Maria (Rising)
-        userNav.innerHTML = `
-            <div class="user-snippet" onclick="location.hash='#dashboard'">
-                <img src="${currentUser.avatar}" class="user-avatar" alt="User">
-                <div style="display:flex; flex-direction:column; align-items:flex-start;">
-                    <span style="font-size:0.85rem; font-weight:600;">Rp 2.405.000</span>
-                    <span class="creator-level-badge level-${currentUser.level.toLowerCase()}" style="font-size:0.6rem;">${currentUser.level}</span>
+        const currentUser = this.currentUser || window.mockData.users[1]; // Simulate logged in as Maria
+        
+        const uploadBtn = document.querySelector('a[href="#upload"], a[href="#dashboard"].btn-primary-outline');
+
+        if (this.userRole === 'creator') {
+            if (uploadBtn) {
+                uploadBtn.href = '#upload';
+                uploadBtn.innerHTML = "<i class='bx bx-upload'></i> Unggah Karya";
+            }
+            userNav.innerHTML = `
+                <div class="user-snippet" onclick="location.hash='#dashboard'">
+                    <img src="${currentUser.avatar}" class="user-avatar" alt="User">
+                    <div style="display:flex; flex-direction:column; align-items:flex-start;">
+                        <span style="font-size:0.85rem; font-weight:600;">Rp ${window.mockData.dashboard.overview.totalPendapatan.toLocaleString('id-ID')}</span>
+                        <span class="creator-level-badge level-${currentUser.level.toLowerCase()}" style="font-size:0.6rem;">${currentUser.level}</span>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        } else {
+            if (uploadBtn) {
+                uploadBtn.href = '#dashboard';
+                uploadBtn.innerHTML = "<i class='bx bx-package'></i> Pembelian Saya";
+            }
+            userNav.innerHTML = `
+                <div class="user-snippet" onclick="location.hash='#dashboard'">
+                    <img src="${currentUser.avatar}" class="user-avatar" alt="User">
+                    <div style="display:flex; flex-direction:column; align-items:flex-start;">
+                        <span style="font-size:0.9rem; font-weight:600;">${currentUser.name}</span>
+                        <span style="font-size:0.75rem; color: var(--text-muted);">Akun Pembeli</span>
+                    </div>
+                </div>
+            `;
+        }
     }
 
     // THE FAIR EXPOSURE ALGORITHM CORE IMPLEMENTATION
@@ -81,8 +138,9 @@ class Create2EarnApp {
 
     renderUploadFlow() {
         if (!this.isLoggedIn) {
-            this.appRoot.innerHTML = window.Components.AuthView();
-            this.appRoot.className = 'view active';
+            window.location.hash = ''; // back to login
+        } else if (this.userRole === 'customer') {
+            window.location.hash = '#upgrade';
         } else {
             this.appRoot.innerHTML = window.Components.UploadProductView();
             this.appRoot.className = 'view active';
@@ -108,7 +166,37 @@ class Create2EarnApp {
                     uploadFile.addEventListener('change', (e) => {
                         const file = e.target.files[0];
                         if (file) {
-                            document.getElementById('drop-zone-file').innerHTML = `<i class='bx bxs-check-circle' style="color:#22C55E; font-size: 3rem; margin-bottom:8px;"></i> <br> <span style="font-size:0.85rem; color:var(--text-main); font-weight:600;">${file.name}</span><br><span style="font-size:0.75rem; color:var(--text-muted)">Siap diunggah</span>`;
+                            document.getElementById('drop-zone-file').innerHTML = `<i class='bx bxs-check-circle' style="color:#22C55E; font-size: 3rem; margin-bottom:8px;"></i> <br> <span style="font-size:0.85rem; color:var(--text-main); font-weight:600;">${file.name}</span><br><span style="font-size:0.75rem; color:var(--text-muted)">Siap diuji-download</span>`;
+                            
+                            const reader = new FileReader();
+                            reader.onload = function(evt) {
+                                window.uploadedZipFile = {
+                                    name: file.name,
+                                    dataUri: evt.target.result
+                                };
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+
+                // Add 10% fee calculation listener dynamically
+                const priceInput = document.getElementById('upload-price');
+                const feeCalc = document.getElementById('fee-calculator');
+                const feeAmt = document.getElementById('fee-amount');
+                const netInc = document.getElementById('net-income');
+
+                if (priceInput) {
+                    priceInput.addEventListener('input', (e) => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val) && val >= 1000) {
+                            feeCalc.style.display = 'block';
+                            const fee = Math.floor(val * 0.10);
+                            const net = val - fee;
+                            feeAmt.innerText = '-Rp ' + fee.toLocaleString('id-ID');
+                            netInc.innerText = 'Rp ' + net.toLocaleString('id-ID');
+                        } else {
+                            feeCalc.style.display = 'none';
                         }
                     });
                 }
@@ -118,8 +206,60 @@ class Create2EarnApp {
     }
 
     login() {
+        const nameInput = document.getElementById('auth-name');
+        const emailInput = document.getElementById('auth-email');
+        const pwInput = document.getElementById('auth-password');
+
+        if (nameInput && emailInput && pwInput) {
+            if (!nameInput.value.trim() || !emailInput.value.trim() || !pwInput.value.trim()) {
+                alert('Peringatan: Semua kolom (Nama, Email, dan Password) wajib diisi untuk bisa masuk!');
+                return;
+            }
+            this.currentUser = {
+                id: 'u_dynamic',
+                name: nameInput.value.trim(),
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(nameInput.value.trim())}&background=38BDF8&color=fff`,
+                level: 'New',
+                rating: 0,
+                sales: 0,
+                bio: 'Pengguna baru di Creaton.'
+            };
+        }
+
         this.isLoggedIn = true;
-        this.renderUploadFlow();
+        this.userRole = 'customer'; // Default on fresh login
+        this.setupNavigation();
+        
+        if (window.location.hash !== '#home') {
+            window.location.hash = '#home'; // Trigger home re-render
+        } else {
+            this.renderHome(); // Manual render if hash is already #home
+        }
+        window.scrollTo(0, 0);
+    }
+
+    withdrawBalance(amount) {
+        if (amount < 50000) {
+            alert(`⚠️ Upps! Saldo Anda saat ini (Rp ${amount.toLocaleString('id-ID')}) belum melampaui batas minimal penarikan (Rp 50.000). Terus tingkatkan penjualan Anda agar cuan mengalir!`);
+        } else {
+            window.mockData.dashboard.overview.totalPendapatan = 0; 
+            alert('✅ Penarikan Berhasil!\nPermintaan transfer dana sebesar Rp ' + amount.toLocaleString('id-ID') + ' telah disetujui dan sedang dalam antrean pengiriman ke bank Anda (Estimasi 1x24 jam kerja).');
+            
+            // Render ulang isi dasbor dan navbar secara dinamis
+            const currentUser = this.currentUser || window.mockData.users[1];
+            const dashboardData = window.mockData.dashboard;
+            const userProducts = this.allProducts.filter(p => p.creatorId === currentUser.id);
+            
+            this.appRoot.innerHTML = window.Components.DashboardView(currentUser, dashboardData, userProducts);
+            this.setupNavigation();
+        }
+    }
+
+    upgradeToCreator() {
+        this.userRole = 'creator';
+        this.setupNavigation();
+        alert('🎉 Yay! Akunmu telah ditingkatkan. Selamat datang di Dasbor Kreator!');
+        window.location.hash = '#dashboard';
     }
 
     uploadProduct() {
@@ -129,7 +269,7 @@ class Create2EarnApp {
         const price = priceStr ? parseInt(priceStr) : 50000;
         const description = document.getElementById('upload-desc')?.value || 'Produk ini tidak memiliki deskripsi spesifik.';
         
-        const currentUser = window.mockData.users[1]; // Maria Garcia
+        const currentUser = this.currentUser || window.mockData.users[1];
 
         const customImage = window.uploadedImageBase64;
         if (window.uploadedImageBase64) {
@@ -144,13 +284,17 @@ class Create2EarnApp {
             rating: 0,
             reviews: 0,
             creatorId: currentUser.id,
-            badge: 'Baru Upload!',
-            category: category,
-            creator: currentUser,
-            description: description
+            creator: {
+                name: currentUser.name,
+                avatar: currentUser.avatar
+            },
+            description: description,
+            zipDataUri: window.uploadedZipFile ? window.uploadedZipFile.dataUri : null,
+            zipFileName: window.uploadedZipFile ? window.uploadedZipFile.name : null
         };
 
         // Tambah ke struktur data awal app (ke Array depan)
+        window.uploadedZipFile = null; // Reset after submit
         this.allProducts.unshift(newProduct);
         window.mockData.products.unshift(newProduct);
 
@@ -165,11 +309,25 @@ class Create2EarnApp {
     }
 
     setupEventListeners() {
-        // Optional: Hash routing listener would go here, currently just an SPA mockup of Home.
         window.addEventListener('hashchange', () => {
             const hash = window.location.hash;
+
+            // Authentication Guard
+            if (!this.isLoggedIn && hash !== '') {
+                window.location.hash = ''; // Force to login view
+                return;
+            }
+
             if (hash === '#home' || hash === '') {
-                this.renderHome();
+                if (!this.isLoggedIn) {
+                    this.renderAuth();
+                } else {
+                    this.renderHome();
+                }
+            } else if (hash === '#upgrade') {
+                 this.appRoot.innerHTML = window.Components.CreatorUpgradeView();
+                 this.appRoot.className = 'view active';
+                 window.scrollTo(0, 0);
             } else if (hash.startsWith('#product-')) {
                 const productId = hash.split('#product-')[1];
                 const product = this.allProducts.find(p => p.id === productId);
@@ -201,10 +359,14 @@ class Create2EarnApp {
                     this.renderHome();
                 }
             } else if (hash === '#dashboard') {
-                const currentUser = window.mockData.users[1];
-                const dashboardData = window.mockData.dashboard;
-                const userProducts = this.allProducts.filter(p => p.creatorId === currentUser.id);
-                this.appRoot.innerHTML = window.Components.DashboardView(currentUser, dashboardData, userProducts);
+                const currentUser = this.currentUser || window.mockData.users[1];
+                if (this.userRole === 'creator') {
+                    const dashboardData = window.mockData.dashboard;
+                    const userProducts = this.allProducts.filter(p => p.creatorId === currentUser.id);
+                    this.appRoot.innerHTML = window.Components.DashboardView(currentUser, dashboardData, userProducts);
+                } else {
+                    this.appRoot.innerHTML = window.Components.CustomerDashboardView(currentUser);
+                }
                 this.appRoot.className = 'view active';
                 window.scrollTo(0, 0);
             } else if (hash.startsWith('#categories')) {
